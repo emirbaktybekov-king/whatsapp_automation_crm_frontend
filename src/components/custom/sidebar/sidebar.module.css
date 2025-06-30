@@ -1,0 +1,103 @@
+.sidebar {
+  background-color: #0d0e13;
+  color: white;
+  font-family: Inter, Helvetica, sans-serif;
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  border-bottom: 1px dashed #1f212a;
+  height: 75px;
+}
+
+.logoContainerCollapsed {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px dashed #1f212a;
+  height: 75px;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 8.5px 13px;
+  border-radius: 6px;
+  text-decoration: none;
+  color: rgb(245, 245, 245);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 21px;
+  font-family: Inter, Helvetica, sans-serif;
+}
+
+.navLink:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.navLink.active {
+  background-color: #1c1c21;
+}
+
+.navText {
+  margin-right: 6.5px;
+  font-family: Inter, Helvetica, sans-serif;
+}
+
+.navText:hover {
+  color: rgb(245, 245, 245) !important;
+}
+
+.expanded {
+  height: 38px;
+}
+
+.collapsed {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.docButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 11px 0;
+  border-radius: 6px;
+  background-color: #1f202a;
+  color: white;
+  font-family: Inter, Helvetica, sans-serif;
+}
+
+.docButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.toggleButton {
+  width: 30px;
+  height: 30px;
+  background-color: white;
+  border-radius: 4px;
+  padding: 0;
+  min-width: unset !important;
+}
+
+.toggleButton:hover {
+  background-color: #e2e8f0;
+}
+
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.2);
+  z-index: 999;
+  transition: opacity 0.3s ease;
+}

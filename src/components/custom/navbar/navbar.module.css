@@ -1,0 +1,27 @@
+.navbarContainer {
+  padding: 0 30px;
+}
+
+@media (max-width: 991.98px) {
+  .navbarContainer {
+    padding: 0 20px;
+  }
+}
+
+.menuItem {
+  padding: 2px 9.7px;
+}
+
+.menuItem:hover {
+  background-color: #f0f0f0;
+}
+
+.menuItem[selected] {
+  background-color: #e0e0e0;
+}
+
+.menuItem[selected]:before {
+  content: "✔";
+  margin-right: 6.5px;
+  color: #23c653;
+}
