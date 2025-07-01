@@ -4,13 +4,13 @@ import { verify } from "jsonwebtoken";
 import axios from "axios";
 
 export async function middleware(request: NextRequest) {
-  const cookieStore = await cookies(); 
+  const cookieStore = await cookies();
   const accessToken = cookieStore.get("accessToken")?.value;
   const refreshToken = cookieStore.get("refreshToken")?.value;
   const path = request.nextUrl.pathname;
 
   // Разрешаем доступ к публичным маршрутам
-  if (path.startsWith("/auth") || path === "/favicon.ico" || path === "/") {
+  if (path.startsWith("/auth") || path === "/favicon.ico") {
     return NextResponse.next();
   }
 
