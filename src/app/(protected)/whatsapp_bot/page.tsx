@@ -66,7 +66,7 @@ const page = () => {
         </Flex>
 
         {/* Main Box */}
-        <Flex p={4} flexDirection="column" gap={4} w="100%" height="100%">
+        <Flex py={4} flexDirection="column" gap={4} w="100%" height="100%">
           <Flex flexDirection="row" gap={4} w="100%">
             <Flex
               width={"100%"}

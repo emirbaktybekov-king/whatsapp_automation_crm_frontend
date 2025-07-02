@@ -1,84 +1,137 @@
 import React from 'react';
-import { Flex, Table, Text, Tooltip } from '@chakra-ui/react';
-import { FaEye, FaEdit, FaTrash } from 'react-icons/fa';
+import { Flex, Table, Text, Badge, Button } from '@chakra-ui/react';
+import { FaEye, FaEdit, FaTrash, FaWhatsapp } from 'react-icons/fa';
 
 const SessionsTable = () => {
   const sessions = [
-    { name: 'Customer Support Bot', status: 'Active', phone: '+1 (555) 123-4567', messages: 342, lastActive: '2 minutes ago', actions: '' },
-    { name: 'Sales Assistant', status: 'Active', phone: '+1 (555) 987-6543', messages: 156, lastActive: '15 minutes ago', actions: '' },
-    { name: 'Marketing Bot', status: 'Inactive', phone: '+1 (555) 456-7890', messages: 89, lastActive: '2 hours ago', actions: '' },
+    { name: 'Customer Support Bot', status: 'Active', phone: '+1 (555) 123-4567', lastActive: '2 minutes ago', actions: '' },
+    { name: 'Sales Assistant', status: 'Active', phone: '+1 (555) 987-6543', lastActive: '15 minutes ago', actions: '' },
+    { name: 'Marketing Bot', status: 'Inactive', phone: '+1 (555) 456-7890', lastActive: '2 hours ago', actions: '' },
   ];
 
   return (
     <Table.Root 
-      variant="line" 
-      colorPalette="gray" 
-      size="md" 
-      borderRadius="xl" 
-      bg="white" 
-      boxShadow="md" 
-      p={6} 
+      size="lg"
+      borderRadius="2xl"
+      bg="white"
+      boxShadow="lg"
+      p={6}
       overflow="hidden"
-      className="w-full"
+      borderWidth="1px"
+      borderColor="gray.200"
+      w="full"
     >
       <Table.Header>
-        <Table.Row w="100%">
-          <Flex 
-            w="100%" 
-            height="80px" 
-            align="center" 
-            p="6" 
-            borderBottom="1px solid #E2E8F0"
-            className="bg-gray-50"
+        <Table.Row>
+          <Flex
+            w="100%"
+            h="64px"
+            align="center"
+            gap={3}
+            px={'16px'}
+            py={4}
+            bgGradient="linear(to-r, blue.600, blue.500)"
           >
-            <Text fontSize="2xl" fontWeight="bold" color="gray.800">
+            <FaWhatsapp color="green.400" size="25" />
+            <Text fontSize="xl" fontWeight="extrabold" color="black" letterSpacing="tight" whiteSpace={'nowrap'}>
               WhatsApp Sessions
             </Text>
           </Flex>
         </Table.Row>
-        <Table.Row px={6} className="bg-gray-100">
-          <Table.ColumnHeader className="text-gray-700 font-semibold">Session Name</Table.ColumnHeader>
-          <Table.ColumnHeader className="text-gray-700 font-semibold">Status</Table.ColumnHeader>
-          <Table.ColumnHeader className="text-gray-700 font-semibold">Phone Number</Table.ColumnHeader>
-          <Table.ColumnHeader className="text-gray-700 font-semibold">Last Active</Table.ColumnHeader>
-          <Table.ColumnHeader className="text-gray-700 font-semibold">Actions</Table.ColumnHeader>
+        <Table.Row bg="gray.50" color="gray.700">
+          <Table.ColumnHeader fontWeight="semibold" fontSize="sm" textTransform="uppercase" p={4}>
+            Session Name
+          </Table.ColumnHeader>
+          <Table.ColumnHeader fontWeight="semibold" fontSize="sm" textTransform="uppercase" p={4}>
+            Status
+          </Table.ColumnHeader>
+          <Table.ColumnHeader fontWeight="semibold" fontSize="sm" textTransform="uppercase" p={4}>
+            Phone Number
+          </Table.ColumnHeader>
+          <Table.ColumnHeader fontWeight="semibold" fontSize="sm" textTransform="uppercase" p={4}>
+            Last Active
+          </Table.ColumnHeader>
+          <Table.ColumnHeader fontWeight="semibold" fontSize="sm" textTransform="uppercase" p={4}>
+            Actions
+          </Table.ColumnHeader>
         </Table.Row>
       </Table.Header>
       <Table.Body>
         {sessions.map((session, index) => (
-          <Table.Row 
-            key={index} 
-            className="transition-colors duration-200 hover:bg-gray-50"
+          <Table.Row
+            key={index}
+            h="64px"
+            transition="all 0.3s ease"
+            _hover={{
+              bg: 'blue.50',
+              transform: 'translateY(-2px)',
+              boxShadow: 'sm',
+            }}
           >
-            <Table.Cell className="text-gray-800">{session.name}</Table.Cell>
-            <Table.Cell>
-              <Flex align="center">
-                <span 
-                  style={{ 
-                    display: 'inline-block', 
-                    width: '10px', 
-                    height: '10px', 
-                    borderRadius: '50%', 
-                    backgroundColor: session.status === 'Active' ? '#34A853' : '#D32F2F', 
-                    marginRight: '10px' 
-                  }}
-                ></span>
-                <Text className="text-gray-700">{session.status}</Text>
+            <Table.Cell color="gray.900" fontWeight="medium">
+              <Flex align="center" gap={3}>
+                <FaWhatsapp color="green.500" size="18" />
+                <Text>{session.name}</Text>
               </Flex>
             </Table.Cell>
-            <Table.Cell className="text-gray-800">{session.phone}</Table.Cell>
-            <Table.Cell className="text-gray-600">{session.lastActive}</Table.Cell>
             <Table.Cell>
-              <Flex gap={3}>
-                  <button className="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors duration-200">
-                    <FaEye size={16} />
-                  </button>
-                  <button className="p-2 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors duration-200">
-                    <FaEdit size={16} />
-                  </button>
-                  <button className="p-2 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors duration-200">
-                    <FaTrash size={16} />
-                  </button>
+              <Flex align="center" gap={2}>
+                <Flex
+                  w="10px"
+                  h="10px"
+                  borderRadius="full"
+                  bg={session.status === 'Active' ? 'green.500' : 'red.500'}
+                />
+                <Badge
+                  colorScheme={session.status === 'Active' ? 'green' : 'red'}
+                  variant="subtle"
+                  p={2}
+                  borderRadius="full"
+                  fontSize="xs"
+                  fontWeight="bold"
+                >
+                  {session.status}
+                </Badge>
+              </Flex>
+            </Table.Cell>
+            <Table.Cell color="gray.900" fontWeight="medium">
+              {session.phone}
+            </Table.Cell>      
+            <Table.Cell color="gray.600" fontSize="sm">
+              {session.lastActive.replace('minutes', 'min').replace('hours', 'hrs')}
+            </Table.Cell>
+            <Table.Cell>
+              <Flex gap={2}>
+                <Button
+                  variant="ghost"
+                  colorScheme="blue"
+                  size="sm"
+                  aria-label="View session"
+                  transition="all 0.2s"
+                  _hover={{ transform: 'scale(1.1)', bg: 'blue.100' }}
+                >
+                  <FaEye />
+                </Button>
+                <Button
+                  variant="ghost"
+                  colorScheme="green"
+                  size="sm"
+                  aria-label="Edit session"
+                  transition="all 0.2s"
+                  _hover={{ transform: 'scale(1.1)', bg: 'green.100' }}
+                >
+                  <FaEdit />
+                </Button>
+                <Button
+                  variant="ghost"
+                  colorScheme="red"
+                  size="sm"
+                  aria-label="Delete session"
+                  transition="all 0.2s"
+                  _hover={{ transform: 'scale(1.1)', bg: 'red.100' }}
+                >
+                  <FaTrash />
+                </Button>
               </Flex>
             </Table.Cell>
           </Table.Row>

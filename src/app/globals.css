@@ -1,3 +1,10 @@
+@import "tailwindcss";
+@import "tailwindcss/typography";
+@import "tailwindcss/forms";
+@import "tailwindcss/line-clamp";
+@import "tailwindcss/aspect-ratio";
+
+
 body {
   margin: 0;
   padding: 0;
