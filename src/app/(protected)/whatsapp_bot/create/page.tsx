@@ -10,6 +10,7 @@ const Page = () => {
   const [scanStatus, setScanStatus] = useState("QR Code Loading");
   const [chats, setChats] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
+  const [messages, setMessages] = useState([]);
   const [ws, setWs] = useState(null);
 
   const triggerQRCode = () => {
@@ -38,15 +39,26 @@ const Page = () => {
         setQrCode(data.qr_code);
         setScanStatus(data.message || "QR code loaded");
         setChats([]); // Clear chats when QR code is active
+        setMessages([]);
         console.log("Received QR code:", data.message);
-      } else {
+      } else if (data.chats && data.chats.length > 0) {
         setQrCode(null);
         setScanStatus(data.message || "Chats Loading");
-        if (data.chats && data.chats.length > 0) {
-          setChats(data.chats);
-          setSelectedChat(data.chats[0]); // Select first chat
-          console.log("Received chats:", data.chats);
+        setChats(data.chats);
+        setSelectedChat(data.chats[0]); // Select first chat
+        console.log("Received chats:", data.chats);
+        // Auto-select first chat
+        if (data.chats[0] && websocket.readyState === WebSocket.OPEN) {
+          console.log("Auto-selecting chat:", data.chats[0].id);
+          websocket.send(JSON.stringify({
+            action: "select_chat",
+            chat_id: data.chats[0].id
+          }));
         }
+      } else if (data.messages) {
+        setMessages(data.messages);
+        setScanStatus(data.message || "Messages loaded");
+        console.log("Received messages for chat", data.chat_id, ":", data.messages);
       }
     };
 
@@ -71,6 +83,13 @@ const Page = () => {
 
   const handleChatSelect = (chat) => {
     setSelectedChat(chat);
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      console.log("Sending chat selection:", chat.id);
+      ws.send(JSON.stringify({
+        action: "select_chat",
+        chat_id: chat.id
+      }));
+    }
   };
 
   return (
@@ -109,7 +128,7 @@ const Page = () => {
             </Flex>
           </Flex>
           <Flex height="650px" w="100%" flexDirection="row" gap={4}>
-            {/* Right Box (QR Code or Chats) */}
+            {/* Left Box (QR Code or Chats) */}
             <Flex w="50%" h="100%" boxShadow="xl" borderRadius="20px" p="4">
               <Flex w="100%" h="100%" flexDirection="column">
                 {qrCode ? (
@@ -245,10 +264,14 @@ const Page = () => {
                               src={chat.image}
                               alt={chat.name}
                               borderRadius="full"
+                              fallbackSrc="https://via.placeholder.com/49"
                             />
                             <Flex flexDirection="column">
                               <Text fontWeight="bold" fontSize="md">
                                 {chat.name}
+                              </Text>
+                              <Text fontSize="sm" color="#4B5563">
+                                ID: {chat.id}
                               </Text>
                             </Flex>
                           </Flex>
@@ -263,7 +286,7 @@ const Page = () => {
                 )}
               </Flex>
             </Flex>
-            {/* Left Box (Chat Messages) */}
+            {/* Right Box (Chat Messages) */}
             <Flex
               w="50%"
               h="100%"
@@ -280,14 +303,41 @@ const Page = () => {
                     </Text>
                   </Flex>
                   <Flex alignItems="center" gap="2">
-                    <Flex w="10px" h="10px" bg={scanStatus === "QR code scanned successfully" ? "#24D366" : "#FDA5A5"} borderRadius="50%" />
+                    <Flex w="10px" h="10px" bg={scanStatus === "QR code scanned successfully" || scanStatus === "Messages loaded" ? "#24D366" : "#FDA5A5"} borderRadius="50%" />
                     <Text fontSize="md" color="white">
-                      {scanStatus === "QR code scanned successfully" ? "Online" : "Offline"}
+                      {scanStatus === "QR code scanned successfully" || scanStatus === "Messages loaded" ? "Online" : "Offline"}
                     </Text>
                   </Flex>
                 </Flex>
                 <Flex w="100%" h="100%" p="4" flexDirection="column" gap="4" overflowY="auto" bg="#ECE5DD">
-                  <Text color="#4B5563">Select a chat to view messages</Text>
+                  {messages.length > 0 ? (
+                    messages.map((msg, index) => (
+                      <Flex
+                        key={msg.id || index}
+                        maxW="70%"
+                        bg={msg.direction === "outgoing" ? "#DCF8C6" : "white"}
+                        p="2"
+                        borderRadius="10px"
+                        alignSelf={msg.direction === "outgoing" ? "flex-end" : "flex-start"}
+                        flexDirection="column"
+                        boxShadow="sm"
+                      >
+                        <Text fontSize="sm" color="#4B5563">
+                          {msg.sender}
+                        </Text>
+                        <Text fontSize="md" color="black">
+                          {msg.content}
+                        </Text>
+                        <Text fontSize="xs" color="#4B5563" alignSelf="flex-end">
+                          {msg.timestamp}
+                        </Text>
+                      </Flex>
+                    ))
+                  ) : (
+                    <Text color="#4B5563">
+                      {selectedChat ? "No messages loaded" : "Select a chat to view messages"}
+                    </Text>
+                  )}
                 </Flex>
                 <Flex w="100%" h="60px" bg="white" p="2" alignItems="center" justifyContent="space-around">
                   <Text fontSize="lg" fontWeight="bold" color="#4B5563">
