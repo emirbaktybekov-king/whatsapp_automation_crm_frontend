@@ -290,8 +290,6 @@ const page = () => {
             </Flex>
           </Flex>
         </Flex>
-
-        <Flex></Flex>
       </Flex>
     </Flex>
   );

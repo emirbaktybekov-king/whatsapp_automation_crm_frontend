@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import { Flex, Text, Button } from "@chakra-ui/react";
 import React from "react";
 import { FaPlus } from "react-icons/fa6";
@@ -6,8 +6,11 @@ import { FaPlay } from "react-icons/fa";
 import { FaCommentAlt } from "react-icons/fa";
 import { AiOutlineStock } from "react-icons/ai";
 import SessionsTable from "@/src/components/SessionsTable/SessionsTable";
+import { useRouter } from "next/navigation";
 
 const page = () => {
+  const router = useRouter();
+
   return (
     <Flex w="100%" h="100%">
       <Flex style={{ width: "100%", height: "100%", flexDirection: "column" }}>
@@ -59,6 +62,9 @@ const page = () => {
               variant="ghost"
               borderRadius="8px"
               fontSize="16px"
+              onClick={() => {
+                router.push("/whatsapp_bot/create");
+              }}
             >
               <FaPlus size={10} /> Create New Whatsapp session
             </Button>
@@ -145,7 +151,7 @@ const page = () => {
                 </Flex>
               </Flex>
             </Flex>
-            
+
             <Flex
               width={"100%"}
               height={"120px"}
@@ -166,7 +172,7 @@ const page = () => {
                     color={"#4E5865"}
                     mb="4px"
                   >
-                    Response Rate 
+                    Response Rate
                   </Text>
                   <Text fontSize={"30px"} fontWeight={"bold"} color={"black"}>
                     98,5%
@@ -184,10 +190,9 @@ const page = () => {
                 </Flex>
               </Flex>
             </Flex>
-           
           </Flex>
           <Flex>
-            <SessionsTable/>
+            <SessionsTable />
           </Flex>
         </Flex>
       </Flex>
