@@ -36,19 +36,20 @@ export const useWhatsAppApi = () => {
   const [ws, setWs] = useState<WebSocket | null>(null);
   const [reconnectAttempts, setReconnectAttempts] = useState(0);
   const maxReconnectAttempts = 5;
-  const reconnectInterval = 5000; // 5 seconds
+  const reconnectInterval = 5000;
 
-  const triggerQRCode = () => {
-    fetch("http://127.0.0.1:8000/whatsapp")
-      .then((response) => response.json())
-      .then((data) => console.log("QR code trigger:", data))
-      .catch((error) => {
-        console.error("Error triggering QR code:", error);
-        setState((prev) => ({
-          ...prev,
-          scanStatus: "Error triggering QR code",
-        }));
-      });
+  const triggerQRCode = async () => {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/whatsapp");
+      const data = await response.json();
+      console.log("QR code trigger:", data);
+      if (data.status === "error") {
+        setState((prev) => ({ ...prev, scanStatus: data.message }));
+      }
+    } catch (error) {
+      console.error("Error triggering QR code:", error);
+      setState((prev) => ({ ...prev, scanStatus: "Error triggering QR code" }));
+    }
   };
 
   const handleChatSelect = (chat: Chat) => {
@@ -59,6 +60,7 @@ export const useWhatsAppApi = () => {
         JSON.stringify({
           action: "select_chat",
           chat_id: chat.id,
+          chat_name: chat.name, // Include chat name for fallback
         })
       );
     } else {
@@ -114,6 +116,7 @@ export const useWhatsAppApi = () => {
             JSON.stringify({
               action: "select_chat",
               chat_id: data.chats[0].id,
+              chat_name: data.chats[0].name,
             })
           );
         }
