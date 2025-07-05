@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import {
   Box,
   VStack,
@@ -10,39 +9,21 @@ import {
   Flex,
   Link,
 } from "@chakra-ui/react";
-import {
-  IconGridDots,
-  IconCoinFilled,
-  IconFileCode2,
-  IconChevronsRight,
-  IconChevronsLeft,
-} from "@tabler/icons-react";
+import { IconChevronsRight, IconChevronsLeft } from "@tabler/icons-react";
 import { usePathname } from "next/navigation";
 import styles from "./sidebar.module.css";
 import { FaRobot } from "react-icons/fa";
 
 interface SidebarProps {
   isOpen: boolean;
-  isHovered: boolean;
   onToggle: () => void;
-  onMouseEnter: () => void;
-  onMouseLeave: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({
-  isOpen,
-  isHovered,
-  onToggle,
-  onMouseEnter,
-  onMouseLeave,
-}) => {
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
   const pathname = usePathname();
-  // Sidebar is expanded if either toggled open or hovered when collapsed
-  const isExpanded = isOpen || isHovered;
 
   return (
     <>
-      {/* Sidebar Wrapper for Smooth Animation */}
       <Box
         position={{ base: "fixed", lg: "sticky" }}
         top="0"
@@ -56,7 +37,6 @@ const Sidebar: React.FC<SidebarProps> = ({
           lg: "translateX(0)",
         }}
       >
-        {/* Toggle Button (Visible only above 992px) */}
         <Button
           onClick={onToggle}
           justifyContent="center"
@@ -71,7 +51,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           position="absolute"
           top="25px"
           right="-15px"
-          zIndex="1001" // Ensure button is above sidebar content
+          zIndex="1001"
         >
           {isOpen ? (
             <IconChevronsLeft size={20} color="#98A1B7" />
@@ -80,44 +60,36 @@ const Sidebar: React.FC<SidebarProps> = ({
           )}
         </Button>
 
-        {/* Sidebar Content with Hover Detection */}
         <Box
-          onMouseEnter={onMouseEnter}
-          onMouseLeave={onMouseLeave}
           className={styles.sidebar}
-          w={{ base: "225px", lg: isExpanded ? "265px" : "75px" }}
+          w={{ base: "225px", lg: isOpen ? "265px" : "75px" }}
           h="100vh"
           transition="width 0.3s ease"
         >
           <VStack align="start" h="100%" gap={0}>
-            {/* Logo Container (Hidden below 992px) */}
             <Box
               className={
-                isExpanded
-                  ? styles.logoContainer
-                  : styles.logoContainerCollapsed
+                isOpen ? styles.logoContainer : styles.logoContainerCollapsed
               }
               height="75px"
               width="100%"
               display={{ base: "none", lg: "flex" }}
               alignItems="center"
-              justifyContent={isExpanded ? "flex-start" : "center"}
-              px={isExpanded ? "20px" : "0"}
+              justifyContent={isOpen ? "flex-start" : "center"}
+              px={isOpen ? "20px" : "0"}
             >
               <Image
                 src={
-                  isExpanded
+                  isOpen
                     ? "/images/default-dark.svg"
                     : "/images/idos-small-vector.svg"
                 }
                 alt="Logo"
-                w={isExpanded ? "150px" : "60px"}
-                h={isExpanded ? "60px" : "60px"}
+                w={isOpen ? "150px" : "60px"}
+                h={isOpen ? "60px" : "60px"}
                 objectFit="cover"
               />
             </Box>
-
-            {/* Navigation Links */}
             <VStack align="start" flex={1} w="100%" p="16px 10px" gap={0}>
               <Link
                 href="/whatsapp_bot"
@@ -127,10 +99,10 @@ const Sidebar: React.FC<SidebarProps> = ({
                 <HStack
                   className={`${styles.navLink} ${
                     pathname === "/whatsapp_bot" ? styles.active : ""
-                  } ${isExpanded ? styles.expanded : styles.collapsed}`}
+                  } ${isOpen ? styles.expanded : styles.collapsed}`}
                 >
-                  <FaRobot size={20} color={"white"} />
-                  {isExpanded && (
+                  <FaRobot size={20} color="white" />
+                  {isOpen && (
                     <span
                       className={styles.navText}
                       style={
@@ -143,8 +115,6 @@ const Sidebar: React.FC<SidebarProps> = ({
                 </HStack>
               </Link>
             </VStack>
-
-            {/* Documentation Button */}
             <Flex
               align="center"
               justify="center"
@@ -161,7 +131,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   className={styles.docButton}
                 >
                   <HStack gap={0}>
-                    {isExpanded && (
+                    {isOpen && (
                       <span
                         className={styles.navText}
                         style={{ color: "#B5B5C3" }}
@@ -170,10 +140,10 @@ const Sidebar: React.FC<SidebarProps> = ({
                       </span>
                     )}
                     <Image
-                      src={"/images/icons/dock-icons.svg"}
+                      src="/images/icons/dock-icons.svg"
                       alt="DocCoin"
-                      w={"20px"}
-                      h={"20px"}
+                      w="20px"
+                      h="20px"
                       objectFit="contain"
                     />
                   </HStack>
@@ -183,8 +153,6 @@ const Sidebar: React.FC<SidebarProps> = ({
           </VStack>
         </Box>
       </Box>
-
-      {/* Backdrop (Visible only below 992px when sidebar is open) */}
       {isOpen && (
         <Box
           className={styles.backdrop}

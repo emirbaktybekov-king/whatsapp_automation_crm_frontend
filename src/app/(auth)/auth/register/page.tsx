@@ -14,15 +14,15 @@ import {
 import { useAuth } from "@/src/api/hooks/useAuth";
 import { PasswordInput } from "@/src/components/ui/password-input";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login, loading, error } = useAuth();
+  const { register, loading, error } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await login(email, password);
+    await register(email, password);
   };
 
   return (
@@ -35,7 +35,7 @@ export default function LoginPage() {
     >
       <Box bg="white" p={8} rounded="md" shadow="md" w="full" maxW="md">
         <Heading as="h1" size="lg" textAlign="center" mb={6}>
-          Login
+          Register
         </Heading>
         <form onSubmit={handleSubmit}>
           <VStack gap={4}>
@@ -63,14 +63,14 @@ export default function LoginPage() {
               type="submit"
               colorScheme="blue"
               width="full"
-              loadingText="Logging in..."
+              loadingText="Registering..."
             >
-              Login
+              Register
             </Button>
             <Text>
-              Don't have an account?{" "}
-              <a href="/auth/register" style={{ color: "#3182ce" }}>
-                Register
+              Already have an account?{" "}
+              <a href="/auth/login" style={{ color: "#3182ce" }}>
+                Log in
               </a>
             </Text>
           </VStack>

@@ -1,6 +1,7 @@
 "use client";
 
-import React from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Box,
   HStack,
@@ -13,6 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { IconMenu2 } from "@tabler/icons-react";
 import styles from "./navbar.module.css";
+import { useAuth } from "@/src/api/hooks/useAuth";
 
 interface NavbarProps {
   onToggleSidebar: () => void;
@@ -20,6 +22,10 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isSidebarOpen }) => {
+  const { logout } = useAuth();
+  const router = useRouter();
+  const [email] = useState("emirbaktybekov02@gmail.com"); // Replace with dynamic user email in production
+
   return (
     <Flex
       h="75px"
@@ -27,10 +33,10 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isSidebarOpen }) => {
       boxShadow="0px 10px 30px 0px rgba(82, 63, 105, 0.05)"
       zIndex="900"
       className={styles.navbarContainer}
-      align={"center"}
-      w={"100%"}
+      align="center"
+      w="100%"
     >
-      <HStack justify="space-between" align="center" display="flex" w={"100%"}>
+      <HStack justify="space-between" align="center" display="flex" w="100%">
         <HStack>
           <Button
             aria-label="Toggle Sidebar"
@@ -44,7 +50,7 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isSidebarOpen }) => {
             <IconMenu2 size={24} />
           </Button>
         </HStack>
-        <HStack gap={4} align={"center"}>
+        <HStack gap={4} align="center">
           <Flex flexDirection="column" justify="center" align="center">
             <Text
               fontStyle="normal"
@@ -68,10 +74,9 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isSidebarOpen }) => {
               </Text>
             </Flex>
           </Flex>
-
-          {/* Light/dark/system mode switch */}
+          {/* Comment out theme switching per request
           <Menu.Root>
-            <Menu.Trigger asChild outline={"none"}>
+            <Menu.Trigger asChild outline="none">
               <Button
                 variant="ghost"
                 style={{ width: "40px", height: "40px", padding: "0" }}
@@ -90,6 +95,7 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isSidebarOpen }) => {
                     value="light"
                     style={{ padding: "2px 9.7px" }}
                     _hover={{ backgroundColor: "#f0f0f0" }}
+                    className={styles.menuItem}
                   >
                     <Flex style={{ padding: "6.5px 9.7px", width: "100%" }}>
                       <Image
@@ -107,6 +113,7 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isSidebarOpen }) => {
                   <Menu.Item
                     value="dark"
                     _hover={{ backgroundColor: "#f0f0f0" }}
+                    className={styles.menuItem}
                   >
                     <Flex style={{ padding: "6.5px 9.7px", width: "100%" }}>
                       <Image
@@ -124,6 +131,7 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isSidebarOpen }) => {
                   <Menu.Item
                     value="system"
                     _hover={{ backgroundColor: "#f0f0f0" }}
+                    className={styles.menuItem}
                   >
                     <Flex style={{ padding: "6.5px 9.7px", width: "100%" }}>
                       <Image
@@ -142,10 +150,9 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isSidebarOpen }) => {
               </Menu.Positioner>
             </Portal>
           </Menu.Root>
-
-          {/* Locate switcher */}
+          */}
           <Menu.Root>
-            <Menu.Trigger asChild outline={"none"}>
+            <Menu.Trigger asChild outline="none">
               <Button
                 variant="ghost"
                 style={{ width: "40px", height: "40px", padding: "0" }}
@@ -223,10 +230,8 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isSidebarOpen }) => {
               </Menu.Positioner>
             </Portal>
           </Menu.Root>
-
-          {/* Account Info Dropdown */}
           <Menu.Root>
-            <Menu.Trigger asChild outline={"none"}>
+            <Menu.Trigger asChild outline="none">
               <Button
                 variant="ghost"
                 style={{ width: "40px", height: "40px", padding: "0" }}
@@ -248,13 +253,17 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, isSidebarOpen }) => {
                     className={styles.menuItem}
                   >
                     <Flex style={{ padding: "6.5px 9.7px", width: "100%" }}>
-                      <Text>emirbaktybekov02@gmail.com</Text>
+                      <Text>{email}</Text>
                     </Flex>
                   </Menu.Item>
                   <Menu.Item
                     value="signout"
                     _hover={{ backgroundColor: "#f0f0f0" }}
                     className={styles.menuItem}
+                    onClick={() => {
+                      logout();
+                      router.push("/auth/login");
+                    }}
                   >
                     <Flex style={{ padding: "6.5px 9.7px", width: "100%" }}>
                       <Text>Sign Out</Text>

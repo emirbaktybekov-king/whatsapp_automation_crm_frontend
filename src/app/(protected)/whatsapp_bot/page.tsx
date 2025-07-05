@@ -1,6 +1,6 @@
 "use client";
+
 import { Flex, Text, Button } from "@chakra-ui/react";
-import React from "react";
 import { FaPlus } from "react-icons/fa6";
 import { FaPlay } from "react-icons/fa";
 import { FaCommentAlt } from "react-icons/fa";
@@ -8,13 +8,12 @@ import { AiOutlineStock } from "react-icons/ai";
 import SessionsTable from "@/src/components/SessionsTable/SessionsTable";
 import { useRouter } from "next/navigation";
 
-const page = () => {
+const Page = () => {
   const router = useRouter();
 
   return (
     <Flex w="100%" h="100%">
       <Flex style={{ width: "100%", height: "100%", flexDirection: "column" }}>
-        {/* Top Box */}
         <Flex
           style={{
             width: "100%",
@@ -70,8 +69,6 @@ const page = () => {
             </Button>
           </Flex>
         </Flex>
-
-        {/* Main Box */}
         <Flex py={4} flexDirection="column" gap={4} w="100%" height="100%">
           <Flex flexDirection="row" gap={4} w="100%">
             <Flex
@@ -112,7 +109,6 @@ const page = () => {
                 </Flex>
               </Flex>
             </Flex>
-
             <Flex
               width={"100%"}
               height={"120px"}
@@ -151,7 +147,6 @@ const page = () => {
                 </Flex>
               </Flex>
             </Flex>
-
             <Flex
               width={"100%"}
               height={"120px"}
@@ -175,7 +170,7 @@ const page = () => {
                     Response Rate
                   </Text>
                   <Text fontSize={"30px"} fontWeight={"bold"} color={"black"}>
-                    98,5%
+                    98.5%
                   </Text>
                 </Flex>
                 <Flex
@@ -200,4 +195,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

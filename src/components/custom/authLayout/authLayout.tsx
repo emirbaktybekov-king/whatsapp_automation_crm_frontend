@@ -2,7 +2,7 @@
 
 import { ReactNode } from "react";
 import { Flex, Image, Text, VStack } from "@chakra-ui/react";
-import styles from "./authLayout.module.css";
+import styles from "@/src/components/custom/authLayout/authLayout.module.css";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (

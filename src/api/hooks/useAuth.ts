@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import apiClient from "@/src/api/apiClient";
-import { login as loginService } from "@/src/api/services/authService";
+import { login as loginService, register as registerService } from "@/src/api/services/authService";
 import Cookies from "js-cookie";
 
 interface AuthState {
@@ -43,19 +43,19 @@ export const useAuth = () => {
   const login = async (email: string, password: string) => {
     try {
       setAuthState((prev) => ({ ...prev, loading: true, error: null }));
-      const { accessToken, refreshToken } = await loginService(email, password);
-      Cookies.set("accessToken", accessToken, {
+      const { access, refresh } = await loginService(email, password);
+      Cookies.set("accessToken", access, {
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
       });
-      Cookies.set("refreshToken", refreshToken, {
+      Cookies.set("refreshToken", refresh, {
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
       });
       setAuthState({
         isAuthenticated: true,
-        accessToken,
-        refreshToken,
+        accessToken: access,
+        refreshToken: refresh,
         loading: false,
         error: null,
       });
@@ -65,6 +65,25 @@ export const useAuth = () => {
         ...prev,
         loading: false,
         error: error.response?.data?.error || "Login failed",
+      }));
+    }
+  };
+
+  const register = async (email: string, password: string) => {
+    try {
+      setAuthState((prev) => ({ ...prev, loading: true, error: null }));
+      await registerService(email, password);
+      setAuthState((prev) => ({
+        ...prev,
+        loading: false,
+        error: null,
+      }));
+      router.push("/auth/login");
+    } catch (error: any) {
+      setAuthState((prev) => ({
+        ...prev,
+        loading: false,
+        error: error.response?.data?.error || "Registration failed",
       }));
     }
   };
@@ -85,10 +104,10 @@ export const useAuth = () => {
   const refreshToken = async () => {
     try {
       const response = await apiClient.post("/api/v1/auth/refresh-token", {
-        refreshToken: authState.refreshToken,
+        refresh: authState.refreshToken,
       });
-      const { accessToken, refreshToken: newRefreshToken } = response.data;
-      Cookies.set("accessToken", accessToken, {
+      const { access, refresh: newRefreshToken } = response.data;
+      Cookies.set("accessToken", access, {
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
       });
@@ -98,17 +117,17 @@ export const useAuth = () => {
       });
       setAuthState((prev) => ({
         ...prev,
-        accessToken,
+        accessToken: access,
         refreshToken: newRefreshToken,
         isAuthenticated: true,
         error: null,
       }));
-      return accessToken;
+      return access;
     } catch (error) {
       logout();
       throw error;
     }
   };
 
-  return { ...authState, login, logout, refreshToken };
+  return { ...authState, login, register, logout, refreshToken };
 };
