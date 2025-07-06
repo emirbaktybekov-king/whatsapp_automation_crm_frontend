@@ -22,8 +22,8 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await login(email, password);
-    if (!error) {
+    const success = await login(email, password);
+    if (success) {
       router.push("/whatsapp_bot");
     }
   };
@@ -49,6 +49,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
+                disabled={loading}
               />
               {error && <Field.ErrorText>{error}</Field.ErrorText>}
             </Field.Root>
@@ -59,6 +60,7 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
                 size="md"
+                disabled={loading}
               />
               {error && <Field.ErrorText>{error}</Field.ErrorText>}
             </Field.Root>

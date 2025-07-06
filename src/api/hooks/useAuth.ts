@@ -1,137 +1,56 @@
-"use client";
+import { useState } from "react";
+import axios from "axios";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import apiClient from "@/src/api/apiClient";
-import { loginService, registerService } from "@/src/api/services/authService";
-import Cookies from "js-cookie";
-
-interface AuthState {
-  isAuthenticated: boolean;
-  accessToken: string | null;
-  refreshToken: string | null;
-  loading: boolean;
-  error: string | null;
-}
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export const useAuth = () => {
-  const [authState, setAuthState] = useState<AuthState>({
-    isAuthenticated: false,
-    accessToken: null,
-    refreshToken: null,
-    loading: true,
-    error: null,
-  });
-  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const accessToken = Cookies.get("accessToken") || null;
-    const refreshToken = Cookies.get("refreshToken") || null;
-    if (accessToken && refreshToken) {
-      setAuthState((prev) => ({
-        ...prev,
-        isAuthenticated: true,
-        accessToken,
-        refreshToken,
-        loading: false,
-      }));
-    } else {
-      setAuthState((prev) => ({ ...prev, loading: false }));
+  const register = async (
+    email: string,
+    password: string,
+    username: string
+  ) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await axios.post(`${API_URL}/api/v1/auth/register`, {
+        email,
+        password,
+        username,
+      });
+      const { accessToken, refreshToken } = response.data;
+      document.cookie = `accessToken=${accessToken}; path=/; secure; samesite=strict`;
+      document.cookie = `refreshToken=${refreshToken}; path=/; secure; samesite=strict`;
+      return true;
+    } catch (err: any) {
+      setError(err.response?.data?.error || "Registration failed");
+      return false;
+    } finally {
+      setLoading(false);
     }
-  }, []);
+  };
 
   const login = async (email: string, password: string) => {
+    setLoading(true);
+    setError(null);
     try {
-      setAuthState((prev) => ({ ...prev, loading: true, error: null }));
-      const { access, refresh } = await loginService(email, password);
-      Cookies.set("accessToken", access, {
-        expires: 5 / 24, // 5 hours
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+      const response = await axios.post(`${API_URL}/api/v1/auth/login`, {
+        email,
+        password,
       });
-      Cookies.set("refreshToken", refresh, {
-        expires: 1, // 1 day
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-      });
-      setAuthState({
-        isAuthenticated: true,
-        accessToken: access,
-        refreshToken: refresh,
-        loading: false,
-        error: null,
-      });
-      router.push("/whatsapp_bot");
-    } catch (error: any) {
-      setAuthState((prev) => ({
-        ...prev,
-        loading: false,
-        error: error.response?.data?.error || "Login failed",
-      }));
+      const { accessToken, refreshToken } = response.data;
+      document.cookie = `accessToken=${accessToken}; path=/; secure; samesite=strict`;
+      document.cookie = `refreshToken=${refreshToken}; path=/; secure; samesite=strict`;
+      return true;
+    } catch (err: any) {
+      setError(err.response?.data?.error || "Login failed");
+      return false;
+    } finally {
+      setLoading(false);
     }
   };
 
-  const register = async (email: string, password: string) => {
-    try {
-      setAuthState((prev) => ({ ...prev, loading: true, error: null }));
-      await registerService(email, password);
-      setAuthState((prev) => ({
-        ...prev,
-        loading: false,
-        error: null,
-      }));
-      router.push("/auth/login");
-    } catch (error: any) {
-      setAuthState((prev) => ({
-        ...prev,
-        loading: false,
-        error: error.response?.data?.error || "Registration failed",
-      }));
-    }
-  };
-
-  const logout = () => {
-    Cookies.remove("accessToken");
-    Cookies.remove("refreshToken");
-    setAuthState({
-      isAuthenticated: false,
-      accessToken: null,
-      refreshToken: null,
-      loading: false,
-      error: null,
-    });
-    router.push("/auth/login");
-  };
-
-  const refreshToken = async () => {
-    try {
-      const response = await apiClient.post("/api/v1/auth/refresh", {
-        refresh: authState.refreshToken,
-      });
-      const { access, refresh: newRefreshToken } = response.data;
-      Cookies.set("accessToken", access, {
-        expires: 5 / 24, // 5 hours
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-      });
-      Cookies.set("refreshToken", newRefreshToken, {
-        expires: 1, // 1 day
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-      });
-      setAuthState((prev) => ({
-        ...prev,
-        accessToken: access,
-        refreshToken: newRefreshToken,
-        isAuthenticated: true,
-        error: null,
-      }));
-      return access;
-    } catch (error) {
-      logout();
-      throw error;
-    }
-  };
-
-  return { ...authState, login, register, logout, refreshToken };
+  return { register, login, loading, error };
 };

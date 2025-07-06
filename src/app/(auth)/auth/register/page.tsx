@@ -17,12 +17,16 @@ import { PasswordInput } from "@/src/components/ui/password-input";
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
   const { register, loading, error } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await register(email, password);
+    const success = await register(email, password, username);
+    if (success) {
+      router.push("/whatsapp_bot");
+    }
   };
 
   return (
@@ -46,6 +50,18 @@ export default function RegisterPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
+                disabled={loading}
+              />
+              {error && <Field.ErrorText>{error}</Field.ErrorText>}
+            </Field.Root>
+            <Field.Root>
+              <Field.Label>Username</Field.Label>
+              <Input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Enter your username"
+                disabled={loading}
               />
               {error && <Field.ErrorText>{error}</Field.ErrorText>}
             </Field.Root>
@@ -56,6 +72,7 @@ export default function RegisterPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
                 size="md"
+                disabled={loading}
               />
               {error && <Field.ErrorText>{error}</Field.ErrorText>}
             </Field.Root>

@@ -9,14 +9,14 @@ export async function middleware(request: NextRequest) {
   const refreshToken = cookieStore.get("refreshToken")?.value;
   const path = request.nextUrl.pathname;
 
-  // Разрешаем доступ к публичным маршрутам
+  // Allow access to public routes
   if (path.startsWith("/auth") || path === "/favicon.ico") {
     return NextResponse.next();
   }
 
   if (accessToken) {
     try {
-      verify(accessToken, "your_development_secret_key");
+      verify(accessToken, process.env.JWT_ACCESS_SECRET!);
       return NextResponse.next();
     } catch (error) {
       if (!refreshToken) {
@@ -25,13 +25,10 @@ export async function middleware(request: NextRequest) {
 
       try {
         const API_URL =
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
-        const response = await axios.post(
-          `${API_URL}/api/v1/auth/refresh-token`,
-          {
-            refreshToken,
-          }
-        );
+          process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+        const response = await axios.post(`${API_URL}/api/v1/auth/refresh`, {
+          refreshToken,
+        });
 
         const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
           response.data;
