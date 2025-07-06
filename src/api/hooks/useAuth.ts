@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import apiClient from "@/src/api/apiClient";
-import { login as loginService, register as registerService } from "@/src/api/services/authService";
+import { loginService, registerService } from "@/src/api/services/authService";
 import Cookies from "js-cookie";
 
 interface AuthState {
@@ -45,10 +45,12 @@ export const useAuth = () => {
       setAuthState((prev) => ({ ...prev, loading: true, error: null }));
       const { access, refresh } = await loginService(email, password);
       Cookies.set("accessToken", access, {
+        expires: 5 / 24, // 5 hours
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
       });
       Cookies.set("refreshToken", refresh, {
+        expires: 1, // 1 day
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
       });
@@ -103,15 +105,17 @@ export const useAuth = () => {
 
   const refreshToken = async () => {
     try {
-      const response = await apiClient.post("/api/v1/auth/refresh-token", {
+      const response = await apiClient.post("/api/v1/auth/refresh", {
         refresh: authState.refreshToken,
       });
       const { access, refresh: newRefreshToken } = response.data;
       Cookies.set("accessToken", access, {
+        expires: 5 / 24, // 5 hours
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
       });
       Cookies.set("refreshToken", newRefreshToken, {
+        expires: 1, // 1 day
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
       });

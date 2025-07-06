@@ -8,7 +8,6 @@ const apiClient = axios.create({
   },
 });
 
-// Add JWT token to all requests
 apiClient.interceptors.request.use(
   (config) => {
     const token = Cookies.get("accessToken");
@@ -24,14 +23,36 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Handle 401 errors
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      console.error("Unauthorized request:", error.response.config.url);
-      Cookies.remove("accessToken");
-      window.location.href = "/auth/login";
+  async (error) => {
+    const originalRequest = error.config;
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      try {
+        const refreshToken = Cookies.get("refreshToken");
+        if (!refreshToken) {
+          console.error("No refresh token available");
+          window.location.href = "/auth/login";
+          return Promise.reject(error);
+        }
+        console.log("Attempting to refresh token");
+        const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/refresh`, {
+          refresh: refreshToken,
+        });
+        const { access, refresh } = response.data;
+        Cookies.set("accessToken", access, { expires: 5 / 24 }); // 5 hours
+        Cookies.set("refreshToken", refresh, { expires: 1 }); // 1 day
+        console.log("Token refreshed successfully");
+        originalRequest.headers["Authorization"] = `Bearer ${access}`;
+        return apiClient(originalRequest);
+      } catch (refreshError) {
+        console.error("Token refresh failed:", refreshError);
+        Cookies.remove("accessToken");
+        Cookies.remove("refreshToken");
+        window.location.href = "/auth/login";
+        return Promise.reject(refreshError);
+      }
     }
     return Promise.reject(error);
   }

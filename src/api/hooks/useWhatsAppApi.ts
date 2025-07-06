@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import apiClient from "../apiClient";
+import apiClient from '../apiClient';
 
 interface Chat {
   id: string;
@@ -16,6 +16,7 @@ interface Message {
   content: string;
   timestamp: string;
   direction: "incoming" | "outgoing";
+  media_type: string | null;
 }
 
 interface WhatsAppApiState {
@@ -45,25 +46,18 @@ export const useWhatsAppApi = () => {
 
   const triggerQRCode = async () => {
     try {
-      setState((prev) => ({
-        ...prev,
-        scanStatus: "Triggering QR code...",
-        error: null,
-      }));
+      setState((prev) => ({ ...prev, scanStatus: "Triggering QR code...", error: null }));
       console.log("Triggering QR code request to /whatsapp");
       const response = await apiClient.get("/whatsapp");
       const data = await response.data;
       console.log("QR code trigger response:", data);
       if (data.status === "error") {
-        setState((prev) => ({
-          ...prev,
-          scanStatus: "Error",
-          error: data.message,
-        }));
+        setState((prev) => ({ ...prev, scanStatus: "Error", error: data.message }));
       } else {
         setState((prev) => ({
           ...prev,
-          scanStatus: "Waiting for QR code...",
+          scanStatus: data.qr_code ? "QR code loaded" : "Waiting for QR code...",
+          qrCode: data.qr_code || null,
           error: null,
         }));
       }
@@ -75,16 +69,11 @@ export const useWhatsAppApi = () => {
           scanStatus: "Error",
           error: "Unauthorized: Please log in again",
         }));
-        Cookies.remove("accessToken");
-        window.location.href = "/auth/login";
       } else {
         setState((prev) => ({
           ...prev,
           scanStatus: "Error",
-          error:
-            error.response?.data?.message ||
-            error.message ||
-            "Failed to trigger QR code",
+          error: error.response?.data?.message || error.message || "Failed to trigger QR code",
         }));
       }
     }
@@ -162,10 +151,7 @@ export const useWhatsAppApi = () => {
             messages: [],
             error: null,
           }));
-          console.log(
-            "Received QR code:",
-            data.qr_code.substring(0, 50) + "..."
-          );
+          console.log("Received QR code:", data.qr_code.substring(0, 50) + "...");
         } else if (data.message === "Loading chats") {
           setState((prev) => ({
             ...prev,
@@ -227,22 +213,15 @@ export const useWhatsAppApi = () => {
     };
 
     websocket.onclose = (event) => {
-      console.log(
-        "WebSocket closed. Code:",
-        event.code,
-        "Reason:",
-        event.reason
-      );
+      console.log("WebSocket closed. Code:", event.code, "Reason:", event.reason);
       setState((prev) => ({
         ...prev,
         connectionStatus: "Disconnected",
         scanStatus: "WebSocket disconnected",
-        error: `WebSocket closed: ${event.reason || "Unknown reason"}`,
+        error: `WebSocket closed: ${event.reason || 'Unknown reason'}`,
       }));
       if (reconnectAttempts < maxReconnectAttempts) {
-        console.log(
-          `Reconnecting (${reconnectAttempts + 1}/${maxReconnectAttempts})...`
-        );
+        console.log(`Reconnecting (${reconnectAttempts + 1}/${maxReconnectAttempts})...`);
         setTimeout(() => {
           setReconnectAttempts((prev) => prev + 1);
           connectWebSocket();
