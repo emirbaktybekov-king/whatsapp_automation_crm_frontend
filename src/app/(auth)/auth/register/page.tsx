@@ -14,6 +14,7 @@ import {
 import { useAuth } from "@/src/api/hooks/useAuth";
 import { PasswordInput } from "@/src/components/ui/password-input";
 
+
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

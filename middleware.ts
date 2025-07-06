@@ -16,7 +16,7 @@ export async function middleware(request: NextRequest) {
 
   if (accessToken) {
     try {
-      verify(accessToken, process.env.JWT_ACCESS_SECRET!);
+      verify(accessToken, process.env.JWT_SECRET!);
       return NextResponse.next();
     } catch (error) {
       if (!refreshToken) {
