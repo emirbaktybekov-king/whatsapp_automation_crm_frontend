@@ -5,9 +5,29 @@ import { QRCode, ChatList, ChatMessages } from "@/src/components/custom";
 import { useWhatsAppApi } from "@/src/api/hooks/useWhatsAppApi";
 
 const Page = () => {
-  const { qrCode, connectionStatus, scanStatus, chats, selectedChat, messages, error, triggerQRCode, handleChatSelect } = useWhatsAppApi();
+  const {
+    qrCode,
+    connectionStatus,
+    scanStatus,
+    chats,
+    selectedChat,
+    messages,
+    error,
+    triggerQRCode,
+    handleChatSelect,
+  } = useWhatsAppApi();
 
-  const showQRCode = qrCode || scanStatus === "Connecting to server..." || scanStatus === "Waiting for QR code..." || scanStatus.includes("QR code loaded");
+  console.log(
+    "QR code state:",
+    qrCode ? qrCode.substring(0, 50) + "..." : "null"
+  ); // Debug log
+  console.log("Scan status:", scanStatus); // Debug log
+
+  const showQRCode =
+    qrCode ||
+    scanStatus === "Connecting to server..." ||
+    scanStatus === "Waiting for QR code..." ||
+    scanStatus.includes("QR code loaded");
 
   return (
     <Flex w="100%" h="100vh" p="4">
@@ -25,7 +45,9 @@ const Page = () => {
             flexDirection="row"
             align="center"
             justifyContent="center"
-            backgroundColor={connectionStatus === "Connected" ? "green.200" : "red.200"}
+            backgroundColor={
+              connectionStatus === "Connected" ? "green.200" : "red.200"
+            }
             borderRadius="30px"
             height="35px"
             px="10px"
@@ -34,48 +56,72 @@ const Page = () => {
               w="15px"
               h="15px"
               borderRadius="50%"
-              backgroundColor={connectionStatus === "Connected" ? "green.400" : "red.400"}
+              backgroundColor={
+                connectionStatus === "Connected" ? "green.400" : "red.400"
+              }
               mr="5px"
             />
-            <Text fontSize="md" color={connectionStatus === "Connected" ? "green.600" : "red.600"}>
+            <Text
+              fontSize="md"
+              color={connectionStatus === "Connected" ? "green.600" : "red.600"}
+            >
               {connectionStatus}
             </Text>
           </Flex>
         </Flex>
         {error && (
-          <Alert.Root status="error" mb={4}>
-            <Alert.Indicator />
-            <Alert.Content>
-              <Alert.Title>Connection Error</Alert.Title>
-              <Alert.Description>
-                {error}
-              </Alert.Description>
-            </Alert.Content>
-          </Alert.Root>
+          <Alert status="error" mb={4}>
+            <Alert.Icon />
+            <Alert.Title>Connection Error</Alert.Title>
+            <Alert.Description>{error}</Alert.Description>
+          </Alert>
         )}
         <Flex height="650px" w="100%" flexDirection="row" gap={4}>
-          <Flex w="50%" h="100%" boxShadow="xl" borderRadius="20px" p="4" justifyContent="center" alignItems="center">
+          <Flex
+            w="50%"
+            h="100%"
+            boxShadow="xl"
+            borderRadius="20px"
+            p="4"
+            justifyContent="center"
+            alignItems="center"
+          >
             {showQRCode ? (
               qrCode ? (
-                <QRCode qrCode={qrCode} scanStatus={scanStatus} triggerQRCode={triggerQRCode} />
+                <>
+                  <Text>QR Code Loaded</Text>
+                  <QRCode
+                    qrCode={qrCode}
+                    scanStatus={scanStatus}
+                    triggerQRCode={triggerQRCode}
+                  />
+                </>
               ) : (
                 <Spinner size="xl" />
               )
+            ) : chats.length > 0 ? (
+              <ChatList
+                chats={chats}
+                selectedChat={selectedChat}
+                handleChatSelect={handleChatSelect}
+                scanStatus={scanStatus}
+              />
             ) : (
-              chats.length > 0 ? (
-                <ChatList
-                  chats={chats}
-                  selectedChat={selectedChat}
-                  handleChatSelect={handleChatSelect}
-                  scanStatus={scanStatus}
-                />
-              ) : (
-                <Spinner size="xl" />
-              )
+              <Spinner size="xl" />
             )}
           </Flex>
-          <Flex w="50%" h="100%" boxShadow="xl" borderRadius="20px" overflow="hidden">
-            <ChatMessages messages={messages} selectedChat={selectedChat} scanStatus={scanStatus} />
+          <Flex
+            w="50%"
+            h="100%"
+            boxShadow="xl"
+            borderRadius="20px"
+            overflow="hidden"
+          >
+            <ChatMessages
+              messages={messages}
+              selectedChat={selectedChat}
+              scanStatus={scanStatus}
+            />
           </Flex>
         </Flex>
       </Flex>

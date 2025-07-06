@@ -1,4 +1,5 @@
 "use client";
+
 import { Button, Flex, Text, Image, Skeleton } from "@chakra-ui/react";
 import { HiRefresh } from "react-icons/hi";
 import React from "react";
@@ -32,19 +33,22 @@ const QRCode: React.FC<QRCodeProps> = ({
           borderRadius="20px"
           p="4"
         >
-          {qrCode ? (
-            <Image
-              src={qrCode}
-              alt="WhatsApp QR Code"
-              boxSize="100%"
-              borderRadius="10px"
-            />
-          ) : (
+          {scanStatus === "Waiting for QR code..." ||
+          scanStatus === "Connecting to server..." ? (
             <Skeleton w="100%" h="100%" borderRadius="10px">
               <Text color="#4B5563" textAlign="center" mt="50%">
                 QR code is loading
               </Text>
             </Skeleton>
+          ) : (
+            qrCode && (
+              <Image
+                src={qrCode}
+                alt="WhatsApp QR Code"
+                boxSize="100%"
+                borderRadius="10px"
+              />
+            )
           )}
         </Flex>
       </Flex>
