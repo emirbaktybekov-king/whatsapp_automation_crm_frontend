@@ -1,6 +1,13 @@
 "use client";
 
-import { Button, Flex, Text, Image, Skeleton } from "@chakra-ui/react";
+import {
+  Button,
+  Flex,
+  Text,
+  Image,
+  Skeleton,
+  Progress,
+} from "@chakra-ui/react";
 import { HiRefresh } from "react-icons/hi";
 import React from "react";
 
@@ -9,6 +16,8 @@ interface QRCodeProps {
   scanStatus: string;
   triggerQRCode: () => void;
   createSession: () => void;
+  refreshQRCode: () => void;
+  sessionId: string | null;
 }
 
 const QRCode: React.FC<QRCodeProps> = ({
@@ -16,13 +25,20 @@ const QRCode: React.FC<QRCodeProps> = ({
   scanStatus,
   triggerQRCode,
   createSession,
+  refreshQRCode,
+  sessionId,
 }) => {
-  const handleGenerateQRCode = () => {
-    if (qrCode) {
-      triggerQRCode();
-    } else {
-      createSession();
+  const getProgressValue = () => {
+    if (
+      scanStatus === "Connecting to server..." ||
+      scanStatus === "Refreshing QR code..."
+    ) {
+      return 50;
     }
+    if (scanStatus === "QR code loaded") {
+      return 100;
+    }
+    return 0;
   };
 
   return (
@@ -43,7 +59,8 @@ const QRCode: React.FC<QRCodeProps> = ({
           borderRadius="20px"
           p="4"
         >
-          {scanStatus === "Connecting to server..." ? (
+          {scanStatus === "Connecting to server..." ||
+          scanStatus === "Refreshing QR code..." ? (
             <Skeleton w="100%" h="100%" borderRadius="10px">
               <Text color="#4B5563" textAlign="center" mt="50%">
                 QR code is loading
@@ -64,14 +81,46 @@ const QRCode: React.FC<QRCodeProps> = ({
             </Skeleton>
           )}
         </Flex>
-        <Button
+        <Progress.Root
+          maxW="300px"
+          mt="10px"
+          value={getProgressValue()}
           colorScheme="green"
-          mt="20px"
-          onClick={handleGenerateQRCode}
-          size="lg"
         >
-          Generate New QR Code
-        </Button>
+          <Progress.Track>
+            <Progress.Range />
+          </Progress.Track>
+        </Progress.Root>
+        {qrCode && sessionId ? (
+          <Button
+            colorScheme="green"
+            bg="#24D366"
+            color="white"
+            mt="20px"
+            size="lg"
+            borderRadius="full"
+            _hover={{ bg: "#1EBE56" }}
+            _active={{ bg: "#1AA848" }}
+            onClick={refreshQRCode}
+          >
+            <HiRefresh />
+            Refresh QR Code
+          </Button>
+        ) : (
+          <Button
+            colorScheme="green"
+            bg="#24D366"
+            color="white"
+            mt="20px"
+            size="lg"
+            borderRadius="full"
+            _hover={{ bg: "#1EBE56" }}
+            _active={{ bg: "#1AA848" }}
+            onClick={createSession}
+          >
+            Generate New QR Code
+          </Button>
+        )}
       </Flex>
       <Flex
         w="100%"

@@ -15,6 +15,8 @@ const Page = () => {
     triggerQRCode,
     handleChatSelect,
     createSession,
+    refreshQRCode,
+    sessionId,
   } = useWhatsAppApi();
 
   console.log(
@@ -87,6 +89,8 @@ const Page = () => {
               scanStatus={scanStatus}
               triggerQRCode={triggerQRCode}
               createSession={createSession}
+              refreshQRCode={refreshQRCode}
+              sessionId={sessionId}
             />
           </Flex>
           <Flex
