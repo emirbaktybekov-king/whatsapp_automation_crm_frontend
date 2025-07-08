@@ -8,16 +8,26 @@ interface QRCodeProps {
   qrCode: string | null;
   scanStatus: string;
   triggerQRCode: () => void;
+  createSession: () => void;
 }
 
 const QRCode: React.FC<QRCodeProps> = ({
   qrCode,
   scanStatus,
   triggerQRCode,
+  createSession,
 }) => {
+  const handleGenerateQRCode = () => {
+    if (qrCode) {
+      triggerQRCode();
+    } else {
+      createSession();
+    }
+  };
+
   return (
     <Flex w="100%" h="100%" flexDirection="column" align="center">
-      <Flex flexDirection="column">
+      <Flex flexDirection="column" align="center">
         <Text fontSize="2xl" fontWeight="bold" color="black" mb="5px">
           WhatsApp Web QR Code
         </Text>
@@ -33,24 +43,35 @@ const QRCode: React.FC<QRCodeProps> = ({
           borderRadius="20px"
           p="4"
         >
-          {scanStatus === "Waiting for QR code..." ||
-          scanStatus === "Connecting to server..." ? (
+          {scanStatus === "Connecting to server..." ? (
             <Skeleton w="100%" h="100%" borderRadius="10px">
               <Text color="#4B5563" textAlign="center" mt="50%">
                 QR code is loading
               </Text>
             </Skeleton>
+          ) : qrCode ? (
+            <Image
+              src={qrCode}
+              alt="WhatsApp QR Code"
+              boxSize="100%"
+              borderRadius="10px"
+            />
           ) : (
-            qrCode && (
-              <Image
-                src={qrCode}
-                alt="WhatsApp QR Code"
-                boxSize="100%"
-                borderRadius="10px"
-              />
-            )
+            <Skeleton w="100%" h="100%" borderRadius="10px">
+              <Text color="#4B5563" textAlign="center" mt="50%">
+                QR code is loading
+              </Text>
+            </Skeleton>
           )}
         </Flex>
+        <Button
+          colorScheme="green"
+          mt="20px"
+          onClick={handleGenerateQRCode}
+          size="lg"
+        >
+          Generate New QR Code
+        </Button>
       </Flex>
       <Flex
         w="100%"

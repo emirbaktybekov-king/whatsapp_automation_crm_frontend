@@ -1,7 +1,7 @@
 "use client";
 
-import { Flex, Text, Spinner, Alert } from "@chakra-ui/react";
-import { QRCode, ChatList, ChatMessages } from "@/src/components/custom";
+import { Flex, Text, Alert } from "@chakra-ui/react";
+import { QRCode, ChatMessages } from "@/src/components/custom";
 import { useWhatsAppApi } from "@/src/api/hooks/useWhatsAppApi";
 
 const Page = () => {
@@ -9,12 +9,12 @@ const Page = () => {
     qrCode,
     connectionStatus,
     scanStatus,
-    chats,
     selectedChat,
     messages,
     error,
     triggerQRCode,
     handleChatSelect,
+    createSession,
   } = useWhatsAppApi();
 
   console.log(
@@ -22,12 +22,6 @@ const Page = () => {
     qrCode ? qrCode.substring(0, 50) + "..." : "null"
   ); // Debug log
   console.log("Scan status:", scanStatus); // Debug log
-
-  const showQRCode =
-    qrCode ||
-    scanStatus === "Connecting to server..." ||
-    scanStatus === "Waiting for QR code..." ||
-    scanStatus.includes("QR code loaded");
 
   return (
     <Flex w="100%" h="100vh" p="4">
@@ -70,11 +64,13 @@ const Page = () => {
           </Flex>
         </Flex>
         {error && (
-          <Alert status="error" mb={4}>
-            <Alert.Icon />
-            <Alert.Title>Connection Error</Alert.Title>
-            <Alert.Description>{error}</Alert.Description>
-          </Alert>
+          <Alert.Root status="error" mb={4}>
+            <Alert.Indicator />
+            <Alert.Content>
+              <Alert.Title>Connection Error</Alert.Title>
+              <Alert.Description>{error}</Alert.Description>
+            </Alert.Content>
+          </Alert.Root>
         )}
         <Flex height="650px" w="100%" flexDirection="row" gap={4}>
           <Flex
@@ -86,29 +82,12 @@ const Page = () => {
             justifyContent="center"
             alignItems="center"
           >
-            {showQRCode ? (
-              qrCode ? (
-                <>
-                  <Text>QR Code Loaded</Text>
-                  <QRCode
-                    qrCode={qrCode}
-                    scanStatus={scanStatus}
-                    triggerQRCode={triggerQRCode}
-                  />
-                </>
-              ) : (
-                <Spinner size="xl" />
-              )
-            ) : chats.length > 0 ? (
-              <ChatList
-                chats={chats}
-                selectedChat={selectedChat}
-                handleChatSelect={handleChatSelect}
-                scanStatus={scanStatus}
-              />
-            ) : (
-              <Spinner size="xl" />
-            )}
+            <QRCode
+              qrCode={qrCode}
+              scanStatus={scanStatus}
+              triggerQRCode={triggerQRCode}
+              createSession={createSession}
+            />
           </Flex>
           <Flex
             w="50%"
