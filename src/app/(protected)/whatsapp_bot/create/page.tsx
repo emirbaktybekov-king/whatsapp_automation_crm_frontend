@@ -1,7 +1,7 @@
 "use client";
 
 import { Flex, Text, Alert } from "@chakra-ui/react";
-import { QRCode, ChatList, ChatMessages } from "@/src/components/custom";
+import { QRCode } from "@/src/components/custom";
 import { useWhatsAppApi } from "@/src/api/hooks/useWhatsAppApi";
 
 const Page = () => {
@@ -9,15 +9,11 @@ const Page = () => {
     qrCode,
     connectionStatus,
     scanStatus,
-    selectedChat,
-    messages,
     error,
     triggerQRCode,
-    handleChatSelect,
     createSession,
     refreshQRCode,
     sessionId,
-    chats,
   } = useWhatsAppApi();
 
   console.log(
@@ -25,6 +21,7 @@ const Page = () => {
     qrCode ? qrCode.substring(0, 50) + "..." : "null"
   ); // Debug log
   console.log("Scan status:", scanStatus); // Debug log
+  console.log("Session ID:", sessionId); // Debug log
 
   return (
     <Flex w="100%" h="100vh" p="4">
@@ -35,9 +32,7 @@ const Page = () => {
               Create New WhatsApp Bot
             </Text>
             <Text fontSize="xl" fontWeight="bold" color="#4B5563">
-              {scanStatus === "Chats loaded" || scanStatus === "Fetching chats..."
-                ? "Select a chat to start messaging"
-                : "Scan the QR code with your WhatsApp to connect your bot"}
+              Scan the QR code with your WhatsApp to connect your bot
             </Text>
           </Flex>
           <Flex
@@ -79,7 +74,7 @@ const Page = () => {
         )}
         <Flex height="650px" w="100%" flexDirection="row" gap={4}>
           <Flex
-            w="50%"
+            w="100%"
             h="100%"
             boxShadow="xl"
             borderRadius="20px"
@@ -87,35 +82,13 @@ const Page = () => {
             justifyContent="center"
             alignItems="center"
           >
-            {(scanStatus === "Fetching chats..." || scanStatus === "Chats loaded") ? (
-              <ChatList
-                chats={chats}
-                selectedChat={selectedChat}
-                handleChatSelect={handleChatSelect}
-                scanStatus={scanStatus}
-              />
-            ) : (
-              <QRCode
-                qrCode={qrCode}
-                scanStatus={scanStatus}
-                triggerQRCode={triggerQRCode}
-                createSession={createSession}
-                refreshQRCode={refreshQRCode}
-                sessionId={sessionId}
-              />
-            )}
-          </Flex>
-          <Flex
-            w="50%"
-            h="100%"
-            boxShadow="xl"
-            borderRadius="20px"
-            overflow="hidden"
-          >
-            <ChatMessages
-              messages={messages}
-              selectedChat={selectedChat}
+            <QRCode
+              qrCode={qrCode}
               scanStatus={scanStatus}
+              triggerQRCode={triggerQRCode}
+              createSession={createSession}
+              refreshQRCode={refreshQRCode}
+              sessionId={sessionId}
             />
           </Flex>
         </Flex>

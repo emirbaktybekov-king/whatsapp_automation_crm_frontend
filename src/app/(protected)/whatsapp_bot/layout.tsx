@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Flex, Box } from "@chakra-ui/react";
+import { Flex, Box, useBreakpointValue } from "@chakra-ui/react";
 import { Sidebar, Navbar } from "@/src/components/custom";
 import Cookies from "js-cookie";
 
@@ -11,8 +11,19 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Default to open
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // default to closed
   const router = useRouter();
+
+  // Detect screen size to set sidebar visibility on first render
+  const defaultSidebarState = useBreakpointValue({
+    base: false, // Mobile
+    lg: true, // Desktop
+  });
+
+  useEffect(() => {
+    // Set initial sidebar state based on screen size
+    setIsSidebarOpen(defaultSidebarState ?? false);
+  }, [defaultSidebarState]);
 
   useEffect(() => {
     const accessToken = Cookies.get("accessToken");

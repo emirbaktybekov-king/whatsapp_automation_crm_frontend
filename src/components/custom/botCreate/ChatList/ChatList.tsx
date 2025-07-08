@@ -1,4 +1,5 @@
 "use client";
+
 import {
   Flex,
   Text,
@@ -43,7 +44,7 @@ const ChatList: React.FC<ChatListProps> = ({
         bg="#F0F2F5"
         overflowY="auto"
       >
-        {scanStatus === "Loading chats" ? (
+        {scanStatus === "Fetching chats..." ? (
           // Show skeleton loader when chats are loading
           Array(5)
             .fill(0)
@@ -84,7 +85,7 @@ const ChatList: React.FC<ChatListProps> = ({
               <Image
                 w="49px"
                 height="49px"
-                src={chat.image || "https://placehold.jp/150x150.png"}
+                src={chat.image || "https://placehold.co/600x400"}
                 alt={chat.name}
                 borderRadius="full"
               />
