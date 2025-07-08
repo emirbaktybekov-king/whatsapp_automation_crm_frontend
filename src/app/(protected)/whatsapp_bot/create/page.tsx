@@ -1,7 +1,7 @@
 "use client";
 
 import { Flex, Text, Alert } from "@chakra-ui/react";
-import { QRCode, ChatMessages } from "@/src/components/custom";
+import { QRCode, ChatList, ChatMessages } from "@/src/components/custom";
 import { useWhatsAppApi } from "@/src/api/hooks/useWhatsAppApi";
 
 const Page = () => {
@@ -17,6 +17,7 @@ const Page = () => {
     createSession,
     refreshQRCode,
     sessionId,
+    chats,
   } = useWhatsAppApi();
 
   console.log(
@@ -34,7 +35,9 @@ const Page = () => {
               Create New WhatsApp Bot
             </Text>
             <Text fontSize="xl" fontWeight="bold" color="#4B5563">
-              Scan the QR code with your WhatsApp to connect your bot
+              {scanStatus === "Chats loaded" || scanStatus === "Fetching chats..."
+                ? "Select a chat to start messaging"
+                : "Scan the QR code with your WhatsApp to connect your bot"}
             </Text>
           </Flex>
           <Flex
@@ -84,14 +87,23 @@ const Page = () => {
             justifyContent="center"
             alignItems="center"
           >
-            <QRCode
-              qrCode={qrCode}
-              scanStatus={scanStatus}
-              triggerQRCode={triggerQRCode}
-              createSession={createSession}
-              refreshQRCode={refreshQRCode}
-              sessionId={sessionId}
-            />
+            {(scanStatus === "Fetching chats..." || scanStatus === "Chats loaded") ? (
+              <ChatList
+                chats={chats}
+                selectedChat={selectedChat}
+                handleChatSelect={handleChatSelect}
+                scanStatus={scanStatus}
+              />
+            ) : (
+              <QRCode
+                qrCode={qrCode}
+                scanStatus={scanStatus}
+                triggerQRCode={triggerQRCode}
+                createSession={createSession}
+                refreshQRCode={refreshQRCode}
+                sessionId={sessionId}
+              />
+            )}
           </Flex>
           <Flex
             w="50%"

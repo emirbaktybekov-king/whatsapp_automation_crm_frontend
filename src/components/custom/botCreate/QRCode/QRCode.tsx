@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Button,
-  Flex,
-  Text,
-  Image,
-  Skeleton,
-  Progress,
-} from "@chakra-ui/react";
+import { Button, Flex, Text, Image, Skeleton, Progress } from "@chakra-ui/react";
 import { HiRefresh } from "react-icons/hi";
 import React from "react";
 
@@ -29,14 +22,14 @@ const QRCode: React.FC<QRCodeProps> = ({
   sessionId,
 }) => {
   const getProgressValue = () => {
-    if (
-      scanStatus === "Connecting to server..." ||
-      scanStatus === "Refreshing QR code..."
-    ) {
+    if (scanStatus === "Fetching QR code...") {
       return 50;
     }
     if (scanStatus === "QR code loaded") {
       return 100;
+    }
+    if (scanStatus === "Disconnected") {
+      return 0;
     }
     return 0;
   };
@@ -47,9 +40,11 @@ const QRCode: React.FC<QRCodeProps> = ({
         <Text fontSize="2xl" fontWeight="bold" color="black" mb="5px">
           WhatsApp Web QR Code
         </Text>
-        <Text fontSize="md" color="#4B5563" mb="20px">
-          {scanStatus}
-        </Text>
+        {scanStatus && (
+          <Text fontSize="md" color="#4B5563" mb="20px">
+            {scanStatus}
+          </Text>
+        )}
         <Flex
           w="300px"
           h="300px"
@@ -59,11 +54,16 @@ const QRCode: React.FC<QRCodeProps> = ({
           borderRadius="20px"
           p="4"
         >
-          {scanStatus === "Connecting to server..." ||
-          scanStatus === "Refreshing QR code..." ? (
+          {scanStatus === "Fetching QR code..." ? (
             <Skeleton w="100%" h="100%" borderRadius="10px">
               <Text color="#4B5563" textAlign="center" mt="50%">
                 QR code is loading
+              </Text>
+            </Skeleton>
+          ) : scanStatus === "Loading chats..." ? (
+            <Skeleton w="100%" h="100%" borderRadius="10px">
+              <Text color="#4B5563" textAlign="center" mt="50%">
+                Loading chats...
               </Text>
             </Skeleton>
           ) : qrCode ? (
@@ -81,17 +81,14 @@ const QRCode: React.FC<QRCodeProps> = ({
             </Skeleton>
           )}
         </Flex>
-        <Progress.Root
-          maxW="300px"
-          mt="10px"
-          value={getProgressValue()}
-          colorScheme="green"
-        >
-          <Progress.Track>
-            <Progress.Range />
-          </Progress.Track>
-        </Progress.Root>
-        {qrCode && sessionId ? (
+        {(scanStatus === "Fetching QR code..." || scanStatus === "QR code loaded" || scanStatus === "Disconnected") && (
+          <Progress.Root maxW="300px" mt="10px" value={getProgressValue()} colorScheme="green">
+            <Progress.Track bg="gray.100">
+              <Progress.Range bg="#24D366" />
+            </Progress.Track>
+          </Progress.Root>
+        )}
+        {qrCode && sessionId && scanStatus !== "Loading chats..." ? (
           <Button
             colorScheme="green"
             bg="#24D366"
@@ -106,7 +103,7 @@ const QRCode: React.FC<QRCodeProps> = ({
             <HiRefresh />
             Refresh QR Code
           </Button>
-        ) : (
+        ) : scanStatus !== "Loading chats..." ? (
           <Button
             colorScheme="green"
             bg="#24D366"
@@ -118,9 +115,9 @@ const QRCode: React.FC<QRCodeProps> = ({
             _active={{ bg: "#1AA848" }}
             onClick={createSession}
           >
-            Generate New QR Code
+            Generate QR Code
           </Button>
-        )}
+        ) : null}
       </Flex>
       <Flex
         w="100%"

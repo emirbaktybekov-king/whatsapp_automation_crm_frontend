@@ -4,18 +4,18 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://127.0.0.1:8000/ws/qr/";
 
 export const useWhatsAppApi = () => {
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [connectionStatus, setConnectionStatus] =
     useState<string>("Disconnected");
-  const [scanStatus, setScanStatus] = useState<string>(
-    "Waiting for QR code..."
-  );
+  const [scanStatus, setScanStatus] = useState<string>("");
   const [selectedChat, setSelectedChat] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [chats, setChats] = useState<any[]>([]);
 
   useEffect(() => {
     const checkServerConnection = async () => {
@@ -27,11 +27,36 @@ export const useWhatsAppApi = () => {
       }
     };
     checkServerConnection();
-  }, []);
+
+    // WebSocket connection
+    const ws = new WebSocket(WS_URL);
+    ws.onopen = () => {
+      console.log("WebSocket connected");
+    };
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.sessionId === sessionId && data.status === "AUTHENTICATED") {
+          setQrCode(null); // Hide QR code immediately
+          setScanStatus(data.message || "Fetching chats...");
+          if (data.chats) {
+            setChats(data.chats);
+            setScanStatus("Chats loaded");
+          }
+        }
+      } catch (err) {
+        console.error("WebSocket message error:", err);
+      }
+    };
+    ws.onclose = () => {
+      console.log("WebSocket disconnected");
+    };
+    return () => ws.close();
+  }, [sessionId]);
 
   const createSession = async () => {
     try {
-      setScanStatus("Connecting to server...");
+      setScanStatus("Fetching QR code...");
       console.log("Making request to /api/v1/session/create"); // Debug log
       const response = await axios.post(
         `${API_URL}/api/v1/session/create`,
@@ -65,7 +90,7 @@ export const useWhatsAppApi = () => {
       return;
     }
     try {
-      setScanStatus("Refreshing QR code...");
+      setScanStatus("Fetching QR code...");
       console.log("Making request to /api/v1/session/refresh"); // Debug log
       const response = await axios.post(
         `${API_URL}/api/v1/session/refresh`,
@@ -81,11 +106,12 @@ export const useWhatsAppApi = () => {
           },
         }
       );
-      const { qrCode } = response.data;
+      const { sessionId: newSessionId, qrCode } = response.data;
       console.log(
         "Refreshed QR code received:",
         qrCode.substring(0, 50) + "..."
       );
+      setSessionId(newSessionId || sessionId); // Update sessionId if new one is provided
       setQrCode(qrCode);
       setScanStatus("QR code loaded");
     } catch (err: any) {
@@ -96,9 +122,11 @@ export const useWhatsAppApi = () => {
   };
 
   const triggerQRCode = () => {
-    setScanStatus("Waiting for QR code...");
+    setScanStatus("");
     setQrCode(null);
-    console.log("Triggering QR code refresh"); // Debug log
+    setSessionId(null);
+    setChats([]);
+    console.log("Triggering QR code reset"); // Debug log
   };
 
   const handleChatSelect = (chat: any) => {
@@ -119,5 +147,6 @@ export const useWhatsAppApi = () => {
     createSession,
     refreshQRCode,
     sessionId,
+    chats,
   };
 };
