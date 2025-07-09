@@ -57,7 +57,7 @@ export const useWhatsAppApi = () => {
             setChats(data.chats);
             localStorage.setItem("whatsapp_chats", JSON.stringify(data.chats));
             setScanStatus("Chats loaded");
-            setError(null); // Clear error on successful chat loading
+            setError(null);
           }
           console.log(
             `Triggering redirect to /whatsapp_bot/session/${data.sessionId}`
@@ -68,11 +68,14 @@ export const useWhatsAppApi = () => {
             console.log(
               `Chat ${data.chatId} selected successfully for session ${data.sessionId}`
             );
+            setError(null);
           } else {
             console.error(
-              `Failed to select chat ${data.chatId} for session ${data.sessionId}`
+              `Failed to select chat ${data.chatId} for session ${
+                data.sessionId
+              }: ${data.error || "Unknown error"}`
             );
-            setError(`Failed to select chat ${data.chatId}`);
+            setError(data.error || `Failed to select chat ${data.chatId}`);
           }
         }
       } catch (err) {
@@ -231,23 +234,41 @@ export const useWhatsAppApi = () => {
     console.log("Triggering QR code reset");
   };
 
-  const handleChatSelect = (chat: any) => {
+  const handleChatSelect = async (chat: any) => {
     setSelectedChat(chat);
     setMessages([]);
-    if (
-      sessionId &&
-      wsRef.current &&
-      wsRef.current.readyState === WebSocket.OPEN
-    ) {
-      wsRef.current.send(
-        JSON.stringify({ type: "select_chat", sessionId, chatId: chat.id })
-      );
-      console.log(
-        `Sent select_chat message for chat ${chat.id} in session ${sessionId}`
-      );
-    } else {
+    if (!sessionId || !wsRef.current) {
       console.error(
         "WebSocket not ready or sessionId missing for chat selection"
+      );
+      setError("Failed to select chat: WebSocket not connected");
+      return;
+    }
+    // Retry sending select_chat message up to 3 times
+    let wsAttempts = 0;
+    const maxWsAttempts = 3;
+    while (wsAttempts < maxWsAttempts) {
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        wsRef.current.send(
+          JSON.stringify({ type: "select_chat", sessionId, chatId: chat.id })
+        );
+        console.log(
+          `Sent select_chat message for chat ${chat.id} in session ${sessionId}`
+        );
+        break;
+      } else {
+        console.log(
+          `WebSocket not ready for chat ${
+            chat.id
+          } selection, retrying attempt ${wsAttempts + 1}`
+        );
+        wsAttempts++;
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+    }
+    if (wsAttempts >= maxWsAttempts) {
+      console.error(
+        `Failed to send select_chat for chat ${chat.id} in session ${sessionId} after ${maxWsAttempts} attempts`
       );
       setError("Failed to select chat: WebSocket not connected");
     }

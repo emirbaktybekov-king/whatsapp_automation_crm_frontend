@@ -43,7 +43,7 @@ const SessionPage = () => {
         setChats(response.data.chats || []);
         setConnectionStatus("Connected");
         setLoading(false);
-        setError(null); // Clear error on successful fetch
+        setError(null);
       } catch (err: any) {
         console.error("Session fetch error:", err);
         setError(err.response?.data?.error || "Failed to fetch session");
@@ -52,7 +52,6 @@ const SessionPage = () => {
       }
     };
 
-    // Redirect to create page if sessionId doesn't match
     if (id && sessionId && id !== sessionId) {
       console.log(
         `Session ID mismatch: URL id=${id}, state id=${sessionId}. Redirecting to create page.`
@@ -61,7 +60,6 @@ const SessionPage = () => {
       return;
     }
 
-    // Fetch chats if not loaded or sessionId matches
     if (id && chats.length === 0) {
       fetchSession();
     } else {
